@@ -16,7 +16,10 @@ export async function testConnection() {
     const result = await sql`SELECT NOW() as current_time`;
     return { success: true, data: result };
   } catch (error) {
-    console.error('Erro ao conectar com o banco de dados:', error);
+    // Não logar detalhes em produção
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Erro ao conectar com o banco de dados:', error);
+    }
     return { success: false, error };
   }
 }

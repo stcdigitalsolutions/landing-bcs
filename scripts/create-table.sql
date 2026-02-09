@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS demo_submissions (
   email VARCHAR(255) NOT NULL,
   phone VARCHAR(50) NOT NULL,
   company VARCHAR(100),
-  status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'contacted', 'converted')),
+  status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'contacted', 'converted', 'revoked')),
   submitted_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP

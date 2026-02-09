@@ -18,6 +18,8 @@ export default function DemoPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [submitMessage, setSubmitMessage] = useState('');
+  const [consentDataProcessing, setConsentDataProcessing] = useState(false);
+  const [consentWhatsApp, setConsentWhatsApp] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -26,6 +28,14 @@ export default function DemoPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validar consentimento obrigatório
+    if (!consentDataProcessing) {
+      setSubmitStatus('error');
+      setSubmitMessage('É necessário concordar com o processamento dos dados para continuar.');
+      return;
+    }
+
     setIsSubmitting(true);
     setSubmitStatus('idle');
     setSubmitMessage('');
@@ -254,15 +264,51 @@ export default function DemoPage() {
                     </div>
                   </div>
 
-                  <div className="text-sm text-gray-600 pt-2">
-                    <p>
-                      Se você concordar em ser contatado por nós, marque abaixo:
-                    </p>
+                  {/* Consentimento LGPD */}
+                  <div className="space-y-4 pt-2">
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="consentDataProcessing"
+                        checked={consentDataProcessing}
+                        onChange={(e) => setConsentDataProcessing(e.target.checked)}
+                        required
+                        className="mt-1 w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-600"
+                      />
+                      <label htmlFor="consentDataProcessing" className="text-sm text-gray-700">
+                        <span className="font-semibold">Concordo com o processamento dos meus dados pessoais*</span>
+                        <br />
+                        <span className="text-xs text-gray-600">
+                          Autorizo a BCS Consultoria a coletar, armazenar e processar meus dados (nome, email, telefone e empresa) 
+                          para fins de contato comercial e agendamento de demonstração. 
+                          <a href="/privacy" target="_blank" className="text-blue-600 hover:underline ml-1">
+                            Ver política de privacidade
+                          </a>
+                        </span>
+                      </label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="consentWhatsApp"
+                        checked={consentWhatsApp}
+                        onChange={(e) => setConsentWhatsApp(e.target.checked)}
+                        className="mt-1 w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-600"
+                      />
+                      <label htmlFor="consentWhatsApp" className="text-sm text-gray-700">
+                        <span className="font-semibold">Autorizo contato via WhatsApp (opcional)</span>
+                        <br />
+                        <span className="text-xs text-gray-600">
+                          Concordo em ser contatado via WhatsApp com informações sobre produtos e serviços.
+                        </span>
+                      </label>
+                    </div>
                   </div>
 
                   <button
                     type="submit"
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || !consentDataProcessing}
                     className="w-full px-8 py-4 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition-all shadow-lg hover:shadow-xl font-semibold text-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
                     {isSubmitting ? (
@@ -288,6 +334,13 @@ export default function DemoPage() {
                     href={whatsappUrl}
                     target="_blank"
                     rel="noopener noreferrer"
+                    onClick={(e) => {
+                      if (!consentWhatsApp && (formData.name || formData.email || formData.phone)) {
+                        e.preventDefault();
+                        setSubmitStatus('error');
+                        setSubmitMessage('Para usar o WhatsApp, é necessário autorizar o contato via WhatsApp acima.');
+                      }
+                    }}
                     className="w-full px-8 py-4 rounded-full bg-green-500 text-white hover:bg-green-600 transition-all shadow-lg hover:shadow-xl font-semibold text-lg flex items-center justify-center gap-2"
                   >
                     <MessageCircle size={20} />
@@ -295,7 +348,11 @@ export default function DemoPage() {
                   </a>
 
                   <p className="text-xs text-gray-500 text-center">
-                    * Campos obrigatórios. Ao enviar, você concorda com nossa política de privacidade.
+                    * Campos obrigatórios. Seus dados serão processados conforme nossa{' '}
+                    <a href="/privacy" target="_blank" className="text-blue-600 hover:underline">
+                      política de privacidade
+                    </a>
+                    . Você pode solicitar exclusão dos seus dados a qualquer momento.
                   </p>
                 </form>
               </div>

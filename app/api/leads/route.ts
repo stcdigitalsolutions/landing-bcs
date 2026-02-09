@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
+import { auth } from '@/auth';
 
 /**
  * GET /api/leads - Listar todos os leads
+ * REQUER AUTENTICAÇÃO
  * Query params:
  * - status: filtrar por status (pending, contacted, converted)
  * - limit: limite de resultados (padrão: 50)
@@ -10,15 +12,23 @@ import { sql } from '@/lib/db';
  */
 export async function GET(request: NextRequest) {
   try {
+    // Verificar autenticação
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json(
+        { error: 'Não autorizado' },
+        { status: 401 }
+      );
+    }
+
     const searchParams = request.nextUrl.searchParams;
     const status = searchParams.get('status');
-    const limit = parseInt(searchParams.get('limit') || '50');
-    const offset = parseInt(searchParams.get('offset') || '0');
+    const limit = Math.min(parseInt(searchParams.get('limit') || '50'), 100); // Máximo 100
+    const offset = Math.max(parseInt(searchParams.get('offset') || '0'), 0);
 
     let query;
-    let params: any[] = [limit, offset];
 
-    if (status) {
+    if (status && ['pending', 'contacted', 'converted'].includes(status)) {
       query = sql`
         SELECT 
           id,
@@ -56,7 +66,7 @@ export async function GET(request: NextRequest) {
     const leads = await query;
 
     // Contar total de leads
-    const countQuery = status
+    const countQuery = status && ['pending', 'contacted', 'converted'].includes(status)
       ? sql`SELECT COUNT(*) as total FROM demo_submissions WHERE status = ${status}`
       : sql`SELECT COUNT(*) as total FROM demo_submissions`;
     
@@ -77,7 +87,10 @@ export async function GET(request: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    console.error('Erro ao buscar leads:', error);
+    // Não logar detalhes do erro em produção
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Erro ao buscar leads:', error);
+    }
     return NextResponse.json(
       { error: 'Erro ao buscar leads' },
       { status: 500 }

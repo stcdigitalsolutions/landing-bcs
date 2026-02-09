@@ -6,7 +6,10 @@ const getAllowedEmails = (): string[] => {
   const allowedEmailsEnv = process.env.ALLOWED_EMAILS;
   if (!allowedEmailsEnv) {
     // Se não configurado, permite todos (útil para desenvolvimento)
-    console.warn('⚠️  ALLOWED_EMAILS não configurado. Permitindo acesso a todos os emails.');
+    // Apenas logar em desenvolvimento
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('⚠️  ALLOWED_EMAILS não configurado. Permitindo acesso a todos os emails.');
+    }
     return [];
   }
   // Dividir por vírgula e remover espaços

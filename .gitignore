@@ -40,3 +40,8 @@ next-env.d.ts
 # environment variables
 .env.local
 .env*.local
+
+# security reports (não commitar - contêm informações sensíveis sobre vulnerabilidades)
+SECURITY_*.md
+REMAINING_VULNERABILITIES.md
+FINAL_SECURITY_AUDIT.md

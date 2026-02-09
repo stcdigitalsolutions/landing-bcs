@@ -217,12 +217,32 @@ O tutorial inclui:
 
 - `/admin` - Requer autenticação (redireciona para `/login` se não autenticado)
 
+## 🔒 Segurança e LGPD
+
+O projeto foi revisado e corrigido para conformidade com segurança e LGPD.
+
+### Principais Implementações
+
+- ✅ APIs protegidas com autenticação
+- ✅ Rate limiting implementado
+- ✅ Validação e sanitização robusta
+- ✅ Política de privacidade completa
+- ✅ Consentimento explícito no formulário
+- ✅ Endpoint para exercer direitos LGPD
+- ✅ Logs seguros (sem dados sensíveis)
+
+### Páginas de Conformidade
+
+- `/privacy` - Política de Privacidade completa
+- `/data-request` - Exercer direitos LGPD (acesso, exclusão, portabilidade)
+
 ## Próximos passos sugeridos
 
 - [x] Integrar com banco de dados PostgreSQL (Neon Serverless)
 - [x] Criar página de admin para visualizar e gerenciar leads
 - [x] Adicionar autenticação Google SSO para a área de admin
+- [x] Implementar segurança e conformidade LGPD
 - [ ] Adicionar notificações por email quando um lead é cadastrado
 - [ ] Integrar com CRM (HubSpot, Salesforce, etc.)
 - [ ] Adicionar dashboard com estatísticas de conversão
-- [ ] Restringir acesso por email específico
+- [ ] Implementar rate limiting distribuído (Redis)

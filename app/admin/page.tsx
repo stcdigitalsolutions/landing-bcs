@@ -88,7 +88,10 @@ export default function AdminPage() {
         setLeads(data.data);
       }
     } catch (error) {
-      console.error('Erro ao buscar leads:', error);
+      // Não logar detalhes em produção
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Erro ao buscar leads:', error);
+      }
     } finally {
       setLoading(false);
     }
@@ -146,7 +149,10 @@ export default function AdminPage() {
         fetchStats();
       }
     } catch (error) {
-      console.error('Erro ao atualizar status:', error);
+      // Não logar detalhes em produção
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Erro ao atualizar status:', error);
+      }
       alert('Erro ao atualizar status. Tente novamente.');
     } finally {
       setUpdatingStatus(null);

@@ -1,17 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
+import { auth } from '@/auth';
 
 /**
  * GET /api/leads/[id] - Buscar um lead específico
+ * REQUER AUTENTICAÇÃO
  */
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
+    // Verificar autenticação
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json(
+        { error: 'Não autorizado' },
+        { status: 401 }
+      );
+    }
+
     const id = parseInt(params.id);
 
-    if (isNaN(id)) {
+    if (isNaN(id) || id <= 0) {
       return NextResponse.json(
         { error: 'ID inválido' },
         { status: 400 }
@@ -45,7 +56,10 @@ export async function GET(
       { status: 200 }
     );
   } catch (error) {
-    console.error('Erro ao buscar lead:', error);
+    // Não logar detalhes do erro em produção
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Erro ao buscar lead:', error);
+    }
     return NextResponse.json(
       { error: 'Erro ao buscar lead' },
       { status: 500 }
@@ -55,17 +69,27 @@ export async function GET(
 
 /**
  * PATCH /api/leads/[id] - Atualizar status de um lead
+ * REQUER AUTENTICAÇÃO
  */
 export async function PATCH(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
+    // Verificar autenticação
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json(
+        { error: 'Não autorizado' },
+        { status: 401 }
+      );
+    }
+
     const id = parseInt(params.id);
     const body = await request.json();
     const { status } = body;
 
-    if (isNaN(id)) {
+    if (isNaN(id) || id <= 0) {
       return NextResponse.json(
         { error: 'ID inválido' },
         { status: 400 }
@@ -102,7 +126,10 @@ export async function PATCH(
       { status: 200 }
     );
   } catch (error) {
-    console.error('Erro ao atualizar lead:', error);
+    // Não logar detalhes do erro em produção
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Erro ao atualizar lead:', error);
+    }
     return NextResponse.json(
       { error: 'Erro ao atualizar lead' },
       { status: 500 }
