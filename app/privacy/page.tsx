@@ -56,7 +56,7 @@ export default function PrivacyPage() {
                 1. Introdução
               </h2>
               <p className="text-gray-700 leading-relaxed">
-                A BCS Consultoria Tecnológica ("nós", "nosso" ou "empresa") respeita sua privacidade e está comprometida 
+                A BCS Consultoria Tecnológica (&quot;nós&quot;, &quot;nosso&quot; ou &quot;empresa&quot;) respeita sua privacidade e está comprometida 
                 em proteger seus dados pessoais. Esta Política de Privacidade explica como coletamos, usamos, armazenamos 
                 e protegemos suas informações pessoais em conformidade com a Lei Geral de Proteção de Dados (LGPD - Lei nº 13.709/2018).
               </p>

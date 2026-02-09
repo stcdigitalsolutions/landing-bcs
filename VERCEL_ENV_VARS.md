@@ -80,6 +80,18 @@ Antes de fazer deploy, verifique:
 - [ ] GOOGLE_CLIENT_ID e GOOGLE_CLIENT_SECRET estão corretos
 - [ ] ALLOWED_EMAILS contém pelo menos um email válido
 
+## 🔒 Segurança e LGPD
+
+O projeto inclui:
+
+- ✅ Headers de segurança configurados automaticamente (`next.config.ts`)
+- ✅ Rate limiting nas APIs
+- ✅ Validação e sanitização de inputs
+- ✅ Páginas de conformidade LGPD (`/privacy`, `/data-request`)
+- ✅ Endpoint para exercer direitos LGPD (`/api/data-request`)
+
+**Nota**: Não são necessárias variáveis de ambiente adicionais para essas funcionalidades.
+
 ---
 
 ## 🔄 Após Adicionar Variáveis

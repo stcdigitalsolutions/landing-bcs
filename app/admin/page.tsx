@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { 
   Users, 
   Clock, 
@@ -76,7 +77,7 @@ export default function AdminPage() {
     }
   }, [status, router]);
 
-  const fetchLeads = async () => {
+  const fetchLeads = useCallback(async () => {
     try {
       setLoading(true);
       const statusParam = filter === 'all' ? '' : filter;
@@ -95,9 +96,9 @@ export default function AdminPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filter, currentPage, limit]);
 
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     try {
       const [all, pending, contacted, converted] = await Promise.all([
         fetch('/api/leads?limit=1'),
@@ -122,12 +123,12 @@ export default function AdminPage() {
     } catch (error) {
       console.error('Erro ao buscar estatísticas:', error);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchLeads();
     fetchStats();
-  }, [filter, currentPage]);
+  }, [fetchLeads, fetchStats]);
 
   const updateStatus = async (leadId: number, newStatus: 'pending' | 'contacted' | 'converted') => {
     try {
@@ -228,9 +229,11 @@ export default function AdminPage() {
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-3 backdrop-blur-xl bg-white/60 rounded-xl px-4 py-2 border border-white/40">
                   {session.user.image ? (
-                    <img 
+                    <Image 
                       src={session.user.image} 
                       alt={session.user.name || 'User'} 
+                      width={32}
+                      height={32}
                       className="w-8 h-8 rounded-full"
                     />
                   ) : (

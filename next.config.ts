@@ -46,6 +46,19 @@ const nextConfig: NextConfig = {
       bodySizeLimit: '1mb',
     },
   },
+  // Configuração de imagens
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**.googleusercontent.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
+      },
+    ],
+  },
 };
 
 export default nextConfig;

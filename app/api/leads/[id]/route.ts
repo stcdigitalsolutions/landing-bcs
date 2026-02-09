@@ -8,7 +8,7 @@ import { auth } from '@/auth';
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Verificar autenticação
@@ -20,7 +20,8 @@ export async function GET(
       );
     }
 
-    const id = parseInt(params.id);
+    const { id: idParam } = await params;
+    const id = parseInt(idParam);
 
     if (isNaN(id) || id <= 0) {
       return NextResponse.json(
@@ -73,7 +74,7 @@ export async function GET(
  */
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Verificar autenticação
@@ -85,7 +86,8 @@ export async function PATCH(
       );
     }
 
-    const id = parseInt(params.id);
+    const { id: idParam } = await params;
+    const id = parseInt(idParam);
     const body = await request.json();
     const { status } = body;
 
@@ -96,9 +98,9 @@ export async function PATCH(
       );
     }
 
-    if (!status || !['pending', 'contacted', 'converted'].includes(status)) {
+    if (!status || !['pending', 'contacted', 'converted', 'revoked'].includes(status)) {
       return NextResponse.json(
-        { error: 'Status inválido. Use: pending, contacted ou converted' },
+        { error: 'Status inválido. Use: pending, contacted, converted ou revoked' },
         { status: 400 }
       );
     }

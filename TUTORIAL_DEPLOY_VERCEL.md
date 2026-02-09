@@ -23,9 +23,9 @@ Certifique-se de que estes arquivos existem e estão corretos:
 - ✅ `.gitignore` - incluindo `.env.local`
 - ✅ `vercel.json` (opcional) - configurações específicas da Vercel
 
-### 1.2 Criar arquivo vercel.json (Opcional)
+### 1.2 Verificar arquivo vercel.json
 
-Crie um arquivo `vercel.json` na raiz do projeto para configurações específicas:
+O projeto já inclui um arquivo `vercel.json` com configurações otimizadas:
 
 ```json
 {
@@ -36,6 +36,8 @@ Crie um arquivo `vercel.json` na raiz do projeto para configurações específic
   "regions": ["iad1"]
 }
 ```
+
+**Nota**: O arquivo `next.config.ts` já inclui headers de segurança e limitações de tamanho de body, que serão aplicadas automaticamente no deploy.
 
 ### 1.3 Verificar build local
 
@@ -253,7 +255,35 @@ A connection string deve ser algo como:
 postgresql://user:password@host.neon.tech/database?sslmode=require
 ```
 
-### 6.3 Testar Conexão
+### 6.3 Verificar Estrutura do Banco
+
+**⚠️ IMPORTANTE**: Certifique-se de que a tabela `demo_submissions` suporta o status `'revoked'` (necessário para conformidade LGPD):
+
+1. Acesse o SQL Editor do Neon
+2. Execute:
+   ```sql
+   SELECT constraint_name, check_clause 
+   FROM information_schema.check_constraints 
+   WHERE table_name = 'demo_submissions' 
+   AND constraint_name LIKE '%status%';
+   ```
+3. Verifique se o resultado inclui `('pending', 'contacted', 'converted', 'revoked')`
+4. Se não incluir `'revoked'`, execute:
+   ```sql
+   ALTER TABLE demo_submissions 
+   DROP CONSTRAINT IF EXISTS demo_submissions_status_check;
+   
+   ALTER TABLE demo_submissions 
+   ADD CONSTRAINT demo_submissions_status_check 
+   CHECK (status IN ('pending', 'contacted', 'converted', 'revoked'));
+   ```
+
+**Alternativa**: Se preferir recriar a tabela (após backup dos dados):
+```bash
+npm run db:init
+```
+
+### 6.4 Testar Conexão
 
 Você pode testar a conexão criando um script temporário ou usando o SQL Editor do Neon.
 
@@ -309,6 +339,13 @@ Após o deploy concluir:
 1. Acesse o Neon Console
 2. Execute: `SELECT * FROM demo_submissions ORDER BY submitted_at DESC;`
 3. Verifique se os dados do formulário estão sendo salvos
+
+### 8.5 Testar Páginas de LGPD
+
+1. Acesse `/privacy` - Verifique se a Política de Privacidade carrega corretamente
+2. Acesse `/data-request` - Teste o formulário de exercer direitos LGPD
+3. Teste uma solicitação de acesso aos dados
+4. Verifique se as respostas são genéricas (segurança contra enumeração de emails)
 
 ---
 
@@ -419,6 +456,23 @@ Por padrão, a Vercel faz deploy automático quando você faz push para:
 3. Adicione seu email se não estiver lá
 4. Faça um novo deploy ou aguarde alguns minutos
 
+### Erro: "Status 'revoked' não permitido" no banco
+
+**Causa**: Tabela criada antes da atualização que adiciona suporte ao status 'revoked'
+
+**Solução**:
+1. Acesse o Neon Console
+2. Execute no SQL Editor:
+   ```sql
+   ALTER TABLE demo_submissions 
+   DROP CONSTRAINT IF EXISTS demo_submissions_status_check;
+   
+   ALTER TABLE demo_submissions 
+   ADD CONSTRAINT demo_submissions_status_check 
+   CHECK (status IN ('pending', 'contacted', 'converted', 'revoked'));
+   ```
+3. Ou recrie a tabela executando `npm run db:init` novamente (após fazer backup dos dados)
+
 ---
 
 ## 📊 Monitoramento e Logs
@@ -436,6 +490,24 @@ Por padrão, a Vercel faz deploy automático quando você faz push para:
 2. Veja métricas de performance
 3. Monitore erros e exceções
 
+### Verificar Headers de Segurança
+
+Após o deploy, verifique se os headers de segurança estão sendo aplicados:
+
+1. Abra o DevTools do navegador (F12)
+2. Vá na aba **Network**
+3. Recarregue a página
+4. Selecione qualquer requisição
+5. Vá na aba **Headers** > **Response Headers**
+6. Verifique se estão presentes:
+   - `Strict-Transport-Security: max-age=63072000; includeSubDomains; preload`
+   - `X-Frame-Options: SAMEORIGIN`
+   - `X-Content-Type-Options: nosniff`
+   - `X-XSS-Protection: 1; mode=block`
+   - `Referrer-Policy: strict-origin-when-cross-origin`
+
+Se algum header estiver faltando, verifique o `next.config.ts` e faça um novo deploy.
+
 ---
 
 ## 🔒 Segurança
@@ -447,12 +519,22 @@ Por padrão, a Vercel faz deploy automático quando você faz push para:
 - ✅ Rotacione secrets periodicamente
 - ✅ Use HTTPS sempre (Vercel faz isso automaticamente)
 - ✅ Restrinja acesso por email (`ALLOWED_EMAILS`)
+- ✅ Headers de segurança configurados automaticamente via `next.config.ts`
+- ✅ Rate limiting implementado nas APIs
+- ✅ Validação e sanitização de inputs
 
 ### Verificar Segurança
 
 1. Verifique se `.env.local` está no `.gitignore`
 2. Revise as variáveis de ambiente na Vercel
 3. Certifique-se de que `AUTH_SECRET` é forte e único
+4. Verifique headers de segurança no DevTools (Network > Headers):
+   - `Strict-Transport-Security`
+   - `X-Frame-Options`
+   - `X-Content-Type-Options`
+   - `X-XSS-Protection`
+5. Teste rate limiting nas APIs (múltiplas requisições rápidas)
+6. Verifique se as respostas de `/api/data-request` são genéricas (não revelam se email existe)
 
 ---
 
@@ -489,6 +571,9 @@ Antes de considerar o deploy completo, verifique:
 - [ ] Formulário funcionando
 - [ ] Autenticação funcionando
 - [ ] Admin acessível
+- [ ] Página de Privacidade (`/privacy`) acessível
+- [ ] Página de Direitos LGPD (`/data-request`) funcionando
+- [ ] Headers de segurança configurados (verificar no DevTools)
 
 ### Pós-Deploy
 - [ ] Domínio customizado configurado (se aplicável)
@@ -507,6 +592,8 @@ Seu projeto está deployado na Vercel!
 - **Site**: `https://seu-projeto.vercel.app`
 - **Admin**: `https://seu-projeto.vercel.app/admin`
 - **Demo**: `https://seu-projeto.vercel.app/demo`
+- **Privacidade**: `https://seu-projeto.vercel.app/privacy`
+- **Direitos LGPD**: `https://seu-projeto.vercel.app/data-request`
 - **Dashboard Vercel**: `https://vercel.com/dashboard`
 
 ### Próximos Passos
