@@ -1,366 +1,347 @@
 'use client';
 
-import { ArrowRight, Lightbulb, Database, Settings, CheckCircle2 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
+import CustomCursor from '@/components/CustomCursor';
+
+// ─── Data ──────────────────────────────────────────────────────────────────────
+
+const methodology = [
+  {
+    category: 'Diagnóstico',
+    title: '01. Mapear',
+    desc: 'Identificamos onde a IA gera ganho real na sua operação — processos repetitivos, gargalos de produtividade e oportunidades que passam despercebidas no dia a dia.',
+  },
+  {
+    category: 'Laboratório',
+    title: '02. Construir',
+    desc: 'Desenvolvemos e testamos soluções práticas de IA nos nossos laboratórios, validando cada aplicação antes de colocá-la para rodar no seu ambiente.',
+  },
+  {
+    category: 'Implantação',
+    title: '03. Integrar',
+    desc: 'Colocamos a solução dentro da rotina da equipe com treinamento prático, garantindo que a adoção aconteça de forma natural e sem atrito.',
+  },
+  {
+    category: 'Gestão Contínua',
+    title: '04. Evoluir',
+    desc: 'Monitoramos resultados, ajustamos as soluções e identificamos novas oportunidades. Sua operação fica mais inteligente a cada ciclo.',
+  },
+];
+
+const services = [
+  {
+    number: '01',
+    title: 'Consultoria em IA',
+    desc: 'Mapeamos onde a inteligência artificial gera ganho real no seu negócio. Nada de diagnósticos genéricos — entregamos um plano de ação com prioridades claras, estimativa de impacto e roadmap de implementação sob medida para a sua operação.',
+    soon: false,
+  },
+  {
+    number: '02',
+    title: 'Laboratórios de IA',
+    desc: 'Workshops presenciais e práticos onde sua equipe constrói soluções reais de IA aplicadas ao próprio dia a dia. Sem teoria em excesso: os participantes saem com ferramentas funcionando e autonomia para evoluí-las.',
+    soon: false,
+  },
+  {
+    number: '03',
+    title: 'EOQ',
+    desc: 'O EOQ é um assistente inteligente de estudo que responde dúvidas dos alunos usando exclusivamente os materiais escolhidos pelo professor — textos, apostilas ou artigos.',
+    soon: true,
+  },
+];
+
+const marqueeItems = [
+  'Transformação Digital',
+  'Ativação de Dados',
+  'Inteligência Artificial',
+  'Governança',
+  'Analytics',
+  'Consultoria',
+];
+
+// ─── Helpers ───────────────────────────────────────────────────────────────────
+
+function CharReveal({ text, baseDelay = 0.1 }: { text: string; baseDelay?: number }) {
+  return (
+    <>
+      {text.split('').map((char, i) => (
+        <span
+          key={i}
+          className="char"
+          style={{ animationDelay: `${baseDelay + i * 0.03}s` }}
+        >
+          {char === ' ' ? '\u00A0' : char}
+        </span>
+      ))}
+    </>
+  );
+}
+
+function MarqueeContent({ ariaHidden }: { ariaHidden?: boolean }) {
+  return (
+    <div className="marquee-content" aria-hidden={ariaHidden}>
+      {marqueeItems.map((item, i) => (
+        <>
+          <span key={`t${i}`}>{item}</span>
+          <span key={`d${i}`} className="dot" />
+        </>
+      ))}
+    </div>
+  );
+}
+
+const fadeInUp = {
+  hidden: { opacity: 0, y: 40 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.8, ease: [0.4, 0, 0.2, 1] as const },
+  },
+};
+
+// ─── Page ──────────────────────────────────────────────────────────────────────
 
 export default function Home() {
-  // Animation variants
-  const fadeInUp = {
-    hidden: { opacity: 0, y: 30 },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: { duration: 0.6, ease: "easeOut" }
-    }
-  };
+  const { scrollY } = useScroll();
 
-  const fadeIn = {
-    hidden: { opacity: 0 },
-    visible: { 
-      opacity: 1,
-      transition: { duration: 0.6 }
-    }
-  };
-
-  const staggerContainer = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2
-      }
-    }
-  };
-
-  const scaleIn = {
-    hidden: { opacity: 0, scale: 0.9 },
-    visible: { 
-      opacity: 1, 
-      scale: 1,
-      transition: { duration: 0.5, ease: "easeOut" }
-    }
-  };
+  const shape1Y = useTransform(scrollY, [0, 600], [0, -40]);
+  const shape1X = useTransform(scrollY, [0, 600], [0, 20]);
+  const shape2Y = useTransform(scrollY, [0, 600], [0, 30]);
+  const shape2X = useTransform(scrollY, [0, 600], [0, -15]);
+  const shape3Y = useTransform(scrollY, [0, 600], [0, -20]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-green-50">
+    <div className="bcs-root">
+      <CustomCursor />
       <Navigation />
 
-      {/* Hero Section */}
-      <section id="home" className="pt-32 pb-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <motion.div 
-            className="text-center"
-            initial="hidden"
-            animate="visible"
-            variants={staggerContainer}
-          >
-            <motion.div 
-              className="inline-block mb-6 px-6 py-3 rounded-full backdrop-blur-lg bg-gradient-to-r from-blue-500/20 to-green-500/20 border border-white/30"
-              variants={fadeIn}
-            >
-              <span className="text-gray-700">Transformação Digital para o Futuro</span>
-            </motion.div>
-            
-            <motion.h2 
-              className="text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 mb-6"
-              variants={fadeInUp}
-            >
-              BCS Consultoria
-              <br />
-              <span className="bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent">
-                Tecnológica
-              </span>
-            </motion.h2>
-            
-            <motion.p 
-              className="text-xl text-gray-600 max-w-3xl mx-auto mb-10"
-              variants={fadeInUp}
-            >
-              Impulsionamos a transformação digital da sua organização com soluções inovadoras,
-              ativação de dados inteligente e consultoria especializada.
-            </motion.p>
-            
-            <motion.div 
-              className="flex flex-col sm:flex-row gap-4 justify-center"
-              variants={fadeInUp}
-            >
-              <a
-                href="/demo"
-                className="inline-flex items-center justify-center px-8 py-4 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition-all shadow-lg hover:shadow-xl"
-              >
-                Fale Conosco
-                <ArrowRight className="ml-2" size={20} />
-              </a>
-              <a
-                href="#services"
-                className="inline-flex items-center justify-center px-8 py-4 rounded-full backdrop-blur-lg bg-white/40 text-gray-700 hover:bg-white/60 transition-all border border-white/30"
-              >
-                Nossos Serviços
-              </a>
-            </motion.div>
-          </motion.div>
-        </div>
-      </section>
+      <main className="main">
 
-      {/* About Section */}
-      <section id="about" className="py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <motion.div 
-            className="backdrop-blur-xl bg-gradient-to-br from-blue-500/10 to-green-500/10 rounded-3xl p-8 md:p-12 border border-white/30 shadow-xl"
+        {/* ── Hero ────────────────────────────────────────────────────────── */}
+        <section id="home" className="hero">
+          <div className="hero-content">
+            <motion.div
+              className="hero-badge"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8 }}
+            >
+              <span>Transformação Digital para o Futuro</span>
+            </motion.div>
+
+            <h1 className="hero-title">
+              <span className="hero-title-line">
+                <CharReveal text="BCS" baseDelay={0.2} />
+              </span>
+              <span className="hero-title-line">
+                <CharReveal text="Consultoria &" baseDelay={0.3} />
+              </span>
+              <span className="hero-title-line accent">
+                <CharReveal text="Laboratórios de IA" baseDelay={0.4} />
+              </span>
+            </h1>
+
+            <motion.p
+              className="hero-subtitle"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.8, duration: 0.8 }}
+            >
+              Consultoria de IA aplicada. Ajudamos empresas e profissionais a ganhar produtividade
+              com soluções testadas nos nossos laboratórios e mantidas pela nossa equipe.
+            </motion.p>
+
+            <motion.div
+              className="hero-cta"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1.0, duration: 0.8 }}
+            >
+              <a href="#contact" className="btn btn-primary">Fale Conosco</a>
+              <a href="#services" className="btn btn-secondary">Nossos Serviços</a>
+            </motion.div>
+          </div>
+
+          <div className="hero-visual">
+            <motion.div className="hero-shape shape-1" style={{ y: shape1Y, x: shape1X }} />
+            <motion.div className="hero-shape shape-2" style={{ y: shape2Y, x: shape2X }} />
+            <motion.div className="hero-shape shape-3" style={{ y: shape3Y }} />
+          </div>
+
+          <motion.div
+            className="scroll-indicator"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.4, duration: 0.8 }}
+          >
+            <span>Scroll</span>
+            <div className="scroll-line" />
+          </motion.div>
+        </section>
+
+        {/* ── Methodology ─────────────────────────────────────────────────── */}
+        <section id="methodology" className="section methodology">
+          <motion.div
+            className="section-header"
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, amount: 0.3 }}
-            variants={scaleIn}
-          >
-            <motion.div 
-              className="text-center mb-12"
-              variants={fadeInUp}
-            >
-              <h3 className="text-4xl font-bold text-gray-900 mb-4">Sobre Nós</h3>
-              <div className="w-20 h-1 bg-gradient-to-r from-blue-600 to-green-600 mx-auto rounded-full"></div>
-            </motion.div>
-            
-            <motion.div 
-              className="max-w-4xl mx-auto"
-              variants={staggerContainer}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-            >
-              <motion.p className="text-lg text-gray-700 mb-6 leading-relaxed" variants={fadeInUp}>
-                A BCS Consultoria Tecnológica é especializada em transformar organizações através da 
-                tecnologia e da inteligência de dados. Nossa missão é capacitar empresas a navegarem 
-                com sucesso pela era digital, implementando soluções inovadoras que geram resultados 
-                mensuráveis.
-              </motion.p>
-              <motion.p className="text-lg text-gray-700 leading-relaxed" variants={fadeInUp}>
-                Com expertise em consultoria estratégica, ativação de dados e desenvolvimento de 
-                soluções personalizadas, trabalhamos lado a lado com nossos clientes para criar um 
-                futuro digital sustentável e orientado por dados.
-              </motion.p>
-            </motion.div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Services Section */}
-      <section id="services" className="py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <motion.div 
-            className="text-center mb-16"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
             variants={fadeInUp}
           >
-            <h3 className="text-4xl font-bold text-gray-900 mb-4">Nossos Serviços</h3>
-            <div className="w-20 h-1 bg-gradient-to-r from-blue-600 to-green-600 mx-auto rounded-full"></div>
-            <p className="text-gray-600 mt-6 max-w-2xl mx-auto">
-              Soluções completas para impulsionar a transformação digital da sua organização
+            <span className="section-label">Nosso Processo</span>
+            <h2 className="section-title">Como Trabalhamos</h2>
+          </motion.div>
+
+          <div className="projects-grid">
+            {methodology.map((item, index) => (
+              <motion.article
+                key={item.title}
+                className="project-card"
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ duration: 0.8, delay: index * 0.15, ease: [0.4, 0, 0.2, 1] }}
+              >
+                <div className="project-image">
+                  <div className="project-overlay">
+                    <span className="project-category">{item.category}</span>
+                  </div>
+                </div>
+                <div className="project-info">
+                  <h3 className="project-title">{item.title}</h3>
+                  <p className="project-desc">{item.desc}</p>
+                </div>
+              </motion.article>
+            ))}
+          </div>
+
+          <motion.div
+            className="section-footer"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+          >
+            <a href="#services" className="link-arrow">
+              <span>Conheça Nossos Serviços</span>
+              <svg viewBox="0 0 24 24" className="arrow-icon">
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
+            </a>
+          </motion.div>
+        </section>
+
+        {/* ── Services ────────────────────────────────────────────────────── */}
+        <section id="services" className="section services">
+          <motion.div
+            className="services-intro"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.3 }}
+            variants={fadeInUp}
+          >
+            <span className="section-label">O que Fazemos</span>
+            <h2 className="section-title">Nossos Serviços</h2>
+            <p className="section-desc">
+              Consultoria, laboratórios práticos e soluções gerenciadas. IA que resolve problemas
+              reais e entrega produtividade no dia a dia.
             </p>
           </motion.div>
 
-          <motion.div 
-            className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.2 }}
-            variants={staggerContainer}
-          >
-            {/* Consultoria em Transformação Digital */}
-            <motion.div 
-              className="backdrop-blur-xl bg-gradient-to-br from-blue-500/15 to-blue-600/10 rounded-2xl p-8 border border-white/30 shadow-lg hover:shadow-2xl transition-all"
-              variants={scaleIn}
+          <div className="services-grid">
+            {services.map((service, index) => (
+              <motion.div
+                key={service.title}
+                className={`service-card${service.soon ? ' service-card--soon' : ''}`}
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ duration: 0.8, delay: index * 0.1, ease: [0.4, 0, 0.2, 1] }}
+              >
+                <div className="service-number">{service.number}</div>
+                <h3 className="service-title">{service.title}</h3>
+                <p className="service-desc">{service.desc}</p>
+                {service.soon && <span className="service-badge">Em Breve</span>}
+              </motion.div>
+            ))}
+          </div>
+        </section>
+
+        {/* ── About ───────────────────────────────────────────────────────── */}
+        <section id="about" className="section about">
+          <div className="about-content">
+            <motion.div
+              className="about-text"
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ duration: 0.8, ease: [0.4, 0, 0.2, 1] }}
             >
-              <div className="w-16 h-16 rounded-full bg-blue-600 flex items-center justify-center mb-6">
-                <Lightbulb className="text-white" size={32} />
-              </div>
-              
-              <h4 className="text-2xl font-bold text-gray-900 mb-4">
-                Consultoria em Transformação Digital
-              </h4>
-              
-              <p className="text-gray-700 mb-6">
-                Trabalhamos em 4 pilares fundamentais para garantir a evolução digital da sua organização:
+              <span className="section-label">Sobre Nós</span>
+              <h2 className="section-title">Transformando Organizações</h2>
+              <p className="about-desc">
+                A BCS é uma consultoria de inteligência artificial aplicada, focada em gerar
+                produtividade real para empresas e profissionais. Não vendemos promessas —
+                desenvolvemos soluções práticas de IA em laboratórios próprios, testadas e
+                validadas antes de chegar ao seu negócio.
               </p>
-
-              <div className="space-y-4">
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-full bg-blue-600/20 flex items-center justify-center flex-shrink-0 mt-1">
-                    <span className="text-blue-700 font-bold">1</span>
-                  </div>
-                  <div>
-                    <h5 className="font-bold text-gray-900 mb-1">Mapear</h5>
-                    <p className="text-sm text-gray-600">
-                      Levantar maturidade digital da organização e principais fluxos de trabalho
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-full bg-blue-600/20 flex items-center justify-center flex-shrink-0 mt-1">
-                    <span className="text-blue-700 font-bold">2</span>
-                  </div>
-                  <div>
-                    <h5 className="font-bold text-gray-900 mb-1">Informatizar</h5>
-                    <p className="text-sm text-gray-600">
-                      Adquirir recursos e ferramentas que possibilitem a migração para informatização dos fluxos de trabalho
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-full bg-blue-600/20 flex items-center justify-center flex-shrink-0 mt-1">
-                    <span className="text-blue-700 font-bold">3</span>
-                  </div>
-                  <div>
-                    <h5 className="font-bold text-gray-900 mb-1">Governar</h5>
-                    <p className="text-sm text-gray-600">
-                      Garantir segurança do ambiente, controle sobre a informação e gestão do conhecimento
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-full bg-blue-600/20 flex items-center justify-center flex-shrink-0 mt-1">
-                    <span className="text-blue-700 font-bold">4</span>
-                  </div>
-                  <div>
-                    <h5 className="font-bold text-gray-900 mb-1">Decidir</h5>
-                    <p className="text-sm text-gray-600">
-                      Utilizar a estrutura para garantir tomada de decisões assertivas, baseada em dados seguros e confiáveis
-                    </p>
-                  </div>
-                </div>
-              </div>
+              <p className="about-desc">
+                Atuamos como parceiros de longo prazo através de serviços gerenciados: da
+                identificação de oportunidades à implementação e evolução contínua. Enquanto outras
+                consultorias entregam relatórios, nós entregamos resultados que você mede no dia a
+                dia da operação.
+              </p>
             </motion.div>
 
-            {/* Ativação de Dados */}
-            <motion.div 
-              className="backdrop-blur-xl bg-gradient-to-br from-green-500/15 to-green-600/10 rounded-2xl p-8 border border-white/30 shadow-lg hover:shadow-2xl transition-all"
-              variants={scaleIn}
+            <motion.div
+              className="about-visual"
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ duration: 0.8, delay: 0.2, ease: [0.4, 0, 0.2, 1] }}
             >
-              <div className="w-16 h-16 rounded-full bg-green-600 flex items-center justify-center mb-6">
-                <Database className="text-white" size={32} />
-              </div>
-              
-              <h4 className="text-2xl font-bold text-gray-900 mb-4">
-                Ativação de Dados
-              </h4>
-              
-              <p className="text-gray-700 mb-6">
-                Transforme dados em insights valiosos com nossas soluções avançadas:
-              </p>
-
-              <div className="space-y-3">
-                <div className="flex items-start gap-3">
-                  <CheckCircle2 className="text-green-600 flex-shrink-0 mt-1" size={20} />
-                  <div>
-                    <h5 className="font-bold text-gray-900 mb-1">Agentes de IA</h5>
-                    <p className="text-sm text-gray-600">
-                      Desenvolvimento de agentes inteligentes personalizados para automatizar processos e gerar insights
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <CheckCircle2 className="text-green-600 flex-shrink-0 mt-1" size={20} />
-                  <div>
-                    <h5 className="font-bold text-gray-900 mb-1">Servidores MCP com SSE</h5>
-                    <p className="text-sm text-gray-600">
-                      Infraestrutura robusta para processamento e comunicação de dados em tempo real
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <CheckCircle2 className="text-green-600 flex-shrink-0 mt-1" size={20} />
-                  <div>
-                    <h5 className="font-bold text-gray-900 mb-1">Analytics com Power BI</h5>
-                    <p className="text-sm text-gray-600">
-                      Dashboards interativos e relatórios inteligentes para visualização de dados
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <CheckCircle2 className="text-green-600 flex-shrink-0 mt-1" size={20} />
-                  <div>
-                    <h5 className="font-bold text-gray-900 mb-1">Soluções com Databricks</h5>
-                    <p className="text-sm text-gray-600">
-                      Plataforma de dados unificada para analytics avançado e machine learning
-                    </p>
-                  </div>
-                </div>
+              <div className="about-image">
+                <img src="/image_card.jpg" alt="BCS - Tecnologia" />
               </div>
             </motion.div>
+          </div>
+        </section>
 
-            {/* Serviços Gerenciados */}
-            <motion.div 
-              className="backdrop-blur-xl bg-gradient-to-br from-blue-500/15 to-green-500/15 rounded-2xl p-8 border border-white/30 shadow-lg hover:shadow-2xl transition-all md:col-span-2 lg:col-span-1"
-              variants={scaleIn}
-            >
-              <div className="w-16 h-16 rounded-full bg-gradient-to-r from-blue-600 to-green-600 flex items-center justify-center mb-6">
-                <Settings className="text-white" size={32} />
-              </div>
-              
-              <h4 className="text-2xl font-bold text-gray-900 mb-4">
-                Serviços Gerenciados (CRM)
-              </h4>
-              
-              <div className="inline-block px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/20 to-green-500/20 border border-white/40 mb-4">
-                <span className="text-sm font-semibold text-gray-700">Em Desenvolvimento</span>
-              </div>
+        {/* ── Marquee ─────────────────────────────────────────────────────── */}
+        <section className="marquee">
+          <div className="marquee-track">
+            <MarqueeContent />
+            <MarqueeContent ariaHidden />
+          </div>
+        </section>
 
-              <p className="text-gray-700 mb-6">
-                Em breve, ofereceremos soluções completas de CRM gerenciado para otimizar o 
-                relacionamento com seus clientes e impulsionar suas vendas.
-              </p>
-
-              <p className="text-gray-600">
-                Fique atento para novidades sobre gestão de clientes, automação de vendas e 
-                análise de comportamento do consumidor.
-              </p>
-            </motion.div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-5xl mx-auto">
-          <motion.div 
-            className="backdrop-blur-xl bg-gradient-to-r from-blue-500/20 to-green-500/20 rounded-3xl p-12 border border-white/30 shadow-2xl text-center"
-            initial="hidden"
-            whileInView="visible"
+        {/* ── Contact ─────────────────────────────────────────────────────── */}
+        <section id="contact" className="section contact">
+          <motion.div
+            className="contact-content"
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.3 }}
-            variants={scaleIn}
+            transition={{ duration: 0.8, ease: [0.4, 0, 0.2, 1] }}
           >
-            <motion.h3 
-              className="text-4xl font-bold text-gray-900 mb-4"
-              variants={fadeInUp}
-            >
-              Pronto para Transformar sua Organização?
-            </motion.h3>
-            <motion.p 
-              className="text-xl text-gray-700 mb-8 max-w-2xl mx-auto"
-              variants={fadeInUp}
-            >
-              Entre em contato conosco e descubra como podemos impulsionar sua jornada digital
-            </motion.p>
-            <motion.a
-              href="/demo"
-              className="inline-flex items-center justify-center px-10 py-5 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition-all shadow-lg hover:shadow-xl text-lg"
-              variants={fadeInUp}
-            >
-              Iniciar Conversa
-              <ArrowRight className="ml-2" size={24} />
-            </motion.a>
+            <h2 className="contact-title">
+              Vamos Transformar<br />sua Organização?
+            </h2>
+            <p className="contact-desc">
+              Pronto para iniciar sua jornada digital? Entre em contato e descubra como podemos
+              impulsionar seu negócio.
+            </p>
+            <a href="#" className="btn btn-primary contact-btn">Iniciar Conversa</a>
+            <div className="contact-links">
+              <a href="#" className="contact-link">LinkedIn</a>
+              <a href="#" className="contact-link">Instagram</a>
+              <a href="#" className="contact-link">E-mail</a>
+            </div>
           </motion.div>
-        </div>
-      </section>
+        </section>
+
+      </main>
 
       <Footer />
     </div>
