@@ -36,6 +36,7 @@ next-env.d.ts
 
 # data files
 /data
+/mockup
 
 # environment variables
 .env.local
